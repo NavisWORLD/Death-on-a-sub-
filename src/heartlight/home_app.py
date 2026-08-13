@@ -34,6 +34,30 @@ from .provenance import atomic_write_json
 from .storage import open_vault
 
 
+HOME_DELETE_SCRIPT = r'''<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const toolbar=document.querySelector('#workspace .row');
+  if(!toolbar)return;
+  const button=document.createElement('button');
+  button.className='secondary';
+  button.textContent='🗑 Delete Lantern';
+  button.onclick=async()=>{
+    if(!current)return;
+    if(!confirm('Permanently delete this Lantern from this device? Make a Backup first if you want to keep a copy.'))return;
+    try{
+      await api(`/api/projects/${current}`,{method:'DELETE'});
+      current=null;
+      document.getElementById('workspace').style.display='none';
+      document.getElementById('welcome').style.display='block';
+      await loadLanterns();
+      toast('Lantern deleted from this device.');
+    }catch(e){toast(e.message,false)}
+  };
+  toolbar.appendChild(button);
+});
+</script>'''
+
+
 class CreateLantern(BaseModel):
     display_name: str = Field(min_length=1, max_length=256)
 
@@ -49,7 +73,7 @@ def create_app() -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     def home_page() -> str:
-        return HOME_HTML
+        return HOME_HTML.replace("</body>", HOME_DELETE_SCRIPT + "</body>")
 
     @app.get("/manifest.webmanifest")
     def manifest() -> JSONResponse:
@@ -80,6 +104,15 @@ def create_app() -> FastAPI:
     def project_status(project: str) -> dict:
         try:
             return _status(project)
+        except (ValueError, FileNotFoundError) as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    @app.delete("/api/projects/{project}")
+    def delete_project(project: str) -> dict:
+        try:
+            vault = open_vault(_project_path(project)).require()
+            shutil.rmtree(vault.root)
+            return {"deleted": project}
         except (ValueError, FileNotFoundError) as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 

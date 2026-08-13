@@ -1,12 +1,37 @@
 # 💚🦄 HEARTLIGHT // The Lantern Archive
 
-> **A family-built memorial continuity toolkit for preserving stories, media, values, and a heartbeat-derived rhythm signature.**
+> **A family-built memorial continuity toolkit for preserving stories, media, values, family teaching, and an optional heartbeat-derived rhythm signature.**
 
 HEARTLIGHT is an experimental open-source project for families who want to preserve the *shape of a relationship* across time: stories, phrases, photographs and videos, family lessons, favorite things, and—when available—the sound of a heartbeat.
 
-It does **not** claim to resurrect a person, recover a soul, prove consciousness survives death, or reproduce an exact human identity. A HEARTLIGHT companion is a **new computational memorial created from supplied records and ongoing family teaching** and should identify itself as such.
+It does **not** claim to resurrect a person, recover a soul, prove consciousness survives death, or reproduce an exact human identity. A HEARTLIGHT companion/profile is a **new computational memorial created from supplied records and ongoing family teaching** and should identify itself as such.
 
 The repository began under the working title `Death-on-a-sub-`. The project itself is now **HEARTLIGHT // The Lantern Archive**: not selling death back to grieving people, but building a lantern from what a family chooses to preserve.
+
+## 💚 For ordinary families: HEARTLIGHT Home
+
+You do **not** need Python, a terminal, Azure, IBM Cloud, or programming knowledge.
+
+Open the repository's **Releases** page and choose **HEARTLIGHT Home — Latest**. Download the build for your computer:
+
+- `HEARTLIGHT-Home-Windows.exe`
+- `HEARTLIGHT-Home-macOS.zip`
+- `HEARTLIGHT-Home-Linux-x86_64.tar.gz`
+
+Open HEARTLIGHT Home and it launches a private local interface in your browser. Then:
+
+1. **Create a Lantern.**
+2. **Drag in memories** — photos, video, audio, and text.
+3. **Add a heartbeat** if you have a suitable PCM WAV recording.
+4. **Teach the Lantern** using family memories and context.
+5. **Build Lantern** to produce the grounded memorial profile.
+6. **Backup** to download the complete Lantern as a ZIP.
+
+The packaged desktop app binds only to `127.0.0.1` and stores Lanterns in your normal local application-data folder. Cloud upload is not required.
+
+> Windows/macOS community binaries are currently unsigned. SmartScreen or Gatekeeper may warn before opening them until the project has external code-signing/notarization credentials.
+
+See [`docs/HOME_QUICKSTART.md`](docs/HOME_QUICKSTART.md) for the family guide.
 
 ## The idea
 
@@ -29,6 +54,10 @@ The stronger engineering idea is real and testable: **a rhythm signal can shape 
 
 ## What is here
 
+- 💚 **HEARTLIGHT Home** family-friendly local GUI/PWA shell
+- 🖱️ drag-and-drop family evidence import
+- 📦 automatic Windows/macOS/Linux desktop builds
+- 💾 one-click ZIP Lantern backups
 - 💚 local-first memorial vaults
 - 🫀 PCM-WAV heartbeat/pulse-style rhythm analysis
 - 📚 text/media evidence manifests with SHA-256 provenance
@@ -37,13 +66,13 @@ The stronger engineering idea is real and testable: **a rhythm signal can shape 
 - 🌐 HIP v0.1 language-neutral event protocol
 - ☁️ Azure Blob Storage adapter
 - ☁️ IBM Cloud Object Storage adapter
-- 🌍 FastAPI reference service
+- 🌍 FastAPI reference/enterprise service
 - 📦 Docker and Kubernetes deployment baseline
 - 🧩 SDK source trees for Python, Rust, C++, TypeScript, Swift, Kotlin, Go, .NET/C#, and Java
 - 🧪 tests + GitHub Actions CI
 - 👩‍👧 family manual, teacher/facilitator guide, science notes, ethics/safety policy, architecture manual, enterprise notes, and *The Lantern Book*
 
-## 1. Install
+## Developer install
 
 Requires Python 3.10+.
 
@@ -53,7 +82,15 @@ cd Death-on-a-sub-
 python -m venv .venv
 # Windows: .venv\Scripts\activate
 # macOS/Linux: source .venv/bin/activate
+pip install -e '.[home]'
+heartlight-home
+```
+
+The classic CLI remains available with a base install:
+
+```bash
 pip install -e .
+heartlight --help
 ```
 
 Optional groups:
@@ -66,13 +103,15 @@ pip install -e '.[server]'
 pip install -e '.[enterprise]'
 ```
 
-## 2. Create a family lantern
+## CLI workflow
+
+Create a family Lantern:
 
 ```bash
 heartlight init ./my-lantern --display-name "Grandma's Lantern"
 ```
 
-## 3. Add records
+Add records:
 
 ```bash
 heartlight ingest-text  ./my-lantern ./letters/story.txt --source "family letters"
@@ -81,17 +120,13 @@ heartlight ingest-audio ./my-lantern ./voice.wav         --source "family archiv
 heartlight ingest-image ./my-lantern ./photo.jpg          --source "family album"
 ```
 
-HEARTLIGHT hashes every imported artifact and records where it came from. Media are preserved as evidence; the core project does not silently clone a voice or fabricate video.
-
-## 4. Add a heartbeat rhythm signature
+Add a heartbeat rhythm signature:
 
 ```bash
 heartlight heartbeat ./my-lantern ./heartbeat.wav
 ```
 
-The analyzer works best on a clean mono/stereo uncompressed PCM WAV with distinct pulse sounds. It performs envelope extraction and conservative peak detection. It is **not a medical device, ECG interpreter, or biometric identity system**.
-
-## 5. Teach the lantern
+Teach it:
 
 ```bash
 heartlight teach ./my-lantern \
@@ -100,29 +135,25 @@ heartlight teach ./my-lantern \
   --teacher "Mom"
 ```
 
-Different family members can preserve different memories without forcing the archive to pretend disagreement never existed.
-
-## 6. Build the memorial profile
+Build the grounded memorial profile:
 
 ```bash
 heartlight build ./my-lantern
 heartlight status ./my-lantern
 ```
 
-The generated `profile.json` is a machine-readable grounding packet for a later conversational, music, robot, haptic, or other application. It includes a mandatory simulation disclosure.
+## Azure + IBM bridges
 
-## 7. Mirror to Azure or IBM Cloud Object Storage
-
-Copy `.env.example` to `.env`, fill in your own credentials, export/load those environment variables, then:
+Cloud sync is optional. The local vault remains the reference implementation's source of truth.
 
 ```bash
 heartlight sync ./my-lantern --provider azure
 heartlight sync ./my-lantern --provider ibm
 ```
 
-Cloud sync is optional. The local vault remains the reference implementation's source of truth.
+Use `.env.example` as the credential template. Never commit real credentials.
 
-## 8. Run the HTTP service
+## Reference HTTP service
 
 ```bash
 pip install -e '.[server]'
@@ -134,9 +165,7 @@ For deployment, see `deploy/docker/`, `deploy/k8s/`, and `enterprise/README.md`.
 
 ## Cross-language compatibility
 
-HEARTLIGHT does not try to duplicate the full engine by hand in literally every programming language. Instead it defines **HIP v0.1**, a stable JSON/event contract that any language can implement.
-
-First-party source trees currently cover:
+HEARTLIGHT uses **HIP v0.1**, a stable JSON/event contract that any language can implement.
 
 ```text
 Python      src/heartlight/
@@ -156,6 +185,8 @@ See `docs/HEARTLIGHT_PROTOCOL.md` and `docs/SDK_MATRIX.md`.
 
 ```text
 src/heartlight/
+  home.py             responsive HEARTLIGHT Home shell/assets + local helpers
+  home_app.py         stable family-facing Home API/launcher
   api.py              reference HTTP service
   cli.py              command-line interface
   corpus.py           evidence + teaching + profile builder
@@ -167,11 +198,13 @@ src/heartlight/
     azure.py           Azure Blob adapter
     ibm_cos.py         IBM COS adapter
 
+packaging/             desktop application launcher
 sdk/                   native HIP SDK source trees
 docs/                  family, engineering, science, ethics, book, protocol
 deploy/                Docker + Kubernetes baseline
 enterprise/            large-scale architecture guidance
-tests/                 executable reference tests
+tests/                 executable reference + Home tests
+.github/workflows/     CI + cross-platform Home release factory
 ```
 
 ## Non-negotiable design rules
@@ -185,7 +218,7 @@ tests/                 executable reference tests
 
 ## Research status
 
-HEARTLIGHT is an **engineering and human-computer-interaction experiment**. It can test whether structured family archives, heartbeat-derived timing/state conditioning, and provenance-aware conversational grounding create meaningful memorial experiences. Claims about post-death consciousness, identity transfer, or physical continuity are outside what this code demonstrates.
+HEARTLIGHT is an **engineering and human-computer-interaction experiment**. It can test whether structured family archives, heartbeat-derived timing/state conditioning, and provenance-aware computational grounding create meaningful memorial experiences. Claims about post-death consciousness, identity transfer, or physical continuity are outside what this code demonstrates.
 
 See `docs/SCIENCE_NOTES.md` for falsifiable experiments and the defensible mathematical/state-machine version of the rhythm-conditioning hypothesis.
 

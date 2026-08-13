@@ -5,7 +5,7 @@ import zipfile
 
 from fastapi.testclient import TestClient
 
-from heartlight.home import create_app
+from heartlight.home_app import create_app
 
 
 def test_home_family_flow(tmp_path, monkeypatch):

@@ -5,6 +5,7 @@ import re
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Annotated
 
 from .corpus import append_lesson, build_profile, init_project
 from .heartbeat import analyze_wav
@@ -90,7 +91,7 @@ def create_app():
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.post("/v1/projects/{project}/heartbeat", status_code=201)
-    async def upload_heartbeat(project: str, file: UploadFile = File(...)):
+    async def upload_heartbeat(project: str, file: Annotated[UploadFile, File()]):
         if file.content_type not in {"audio/wav", "audio/x-wav", "audio/wave", "application/octet-stream"}:
             raise HTTPException(status_code=415, detail="upload an uncompressed PCM WAV file")
         try:

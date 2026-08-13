@@ -58,6 +58,11 @@ def test_home_family_flow(tmp_path, monkeypatch):
     assert "manifest.json" in names
     assert "generated/profile.json" in names
 
+    deleted = client.delete(f"/api/projects/{project}")
+    assert deleted.status_code == 200
+    assert deleted.json()["deleted"] == project
+    assert client.get("/api/projects").json() == []
+
 
 def test_home_shell_is_pwa_ready(tmp_path, monkeypatch):
     monkeypatch.setenv("HEARTLIGHT_HOME_DATA_ROOT", str(tmp_path / "home-data"))
@@ -67,6 +72,7 @@ def test_home_shell_is_pwa_ready(tmp_path, monkeypatch):
     assert page.status_code == 200
     assert "HEARTLIGHT Home" in page.text
     assert "Drop photos, videos, audio, or text here" in page.text
+    assert "Delete Lantern" in page.text
 
     manifest = client.get("/manifest.webmanifest")
     assert manifest.status_code == 200

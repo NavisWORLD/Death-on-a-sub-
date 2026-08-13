@@ -5,6 +5,7 @@ import math
 import statistics
 import struct
 import wave
+from itertools import pairwise
 from pathlib import Path
 
 from .models import HeartbeatSignature
@@ -75,7 +76,7 @@ def _detect_peaks(envelope: list[float], seconds_per_window: float, min_interval
         if value >= left and value >= right and (value > left or value > right):
             candidates.append(index)
 
-    min_windows = max(1, int(round(min_interval / seconds_per_window)))
+    min_windows = max(1, round(min_interval / seconds_per_window))
     chosen: list[int] = []
     for candidate in sorted(candidates, key=lambda i: envelope[i], reverse=True):
         if all(abs(candidate - existing) >= min_windows for existing in chosen):
@@ -105,7 +106,7 @@ def analyze_wav(path: str | Path, *, window_ms: float = 25.0, min_interval: floa
     seconds_per_window = window_size / sample_rate
     peak_indices = _detect_peaks(envelope, seconds_per_window, min_interval)
     beat_times = [round((index + 0.5) * seconds_per_window, 6) for index in peak_indices]
-    intervals = [round(b - a, 6) for a, b in zip(beat_times, beat_times[1:])]
+    intervals = [round(b - a, 6) for a, b in pairwise(beat_times)]
     bpm = round(60.0 / statistics.median(intervals), 3) if intervals else None
     duration = round(len(samples) / sample_rate, 6)
 

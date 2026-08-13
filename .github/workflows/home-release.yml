@@ -28,6 +28,25 @@ jobs:
         run: python -m pytest -q tests/test_home.py
       - name: Build portable Windows app
         run: pyinstaller --noconfirm --clean --onefile --windowed --name HEARTLIGHT-Home packaging/heartlight_home_launcher.py
+      - name: Smoke-test packaged Windows app
+        shell: pwsh
+        run: |
+          $env:HEARTLIGHT_NO_BROWSER="1"
+          $env:HEARTLIGHT_HOME_PORT="8787"
+          $p = Start-Process -FilePath "dist/HEARTLIGHT-Home.exe" -PassThru
+          try {
+            $ok = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              Start-Sleep -Seconds 1
+              try {
+                $r = Invoke-RestMethod -Uri "http://127.0.0.1:8787/healthz" -TimeoutSec 2
+                if ($r.ok -eq $true) { $ok = $true; break }
+              } catch {}
+            }
+            if (-not $ok) { throw "Packaged HEARTLIGHT Home did not become healthy" }
+          } finally {
+            Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+          }
       - name: Rename Windows asset
         shell: pwsh
         run: Move-Item dist/HEARTLIGHT-Home.exe HEARTLIGHT-Home-Windows.exe
@@ -49,6 +68,22 @@ jobs:
         run: python -m pytest -q tests/test_home.py
       - name: Build macOS app bundle
         run: pyinstaller --noconfirm --clean --windowed --name HEARTLIGHT-Home packaging/heartlight_home_launcher.py
+      - name: Smoke-test packaged macOS app
+        env:
+          HEARTLIGHT_NO_BROWSER: "1"
+          HEARTLIGHT_HOME_PORT: "8787"
+        run: |
+          dist/HEARTLIGHT-Home.app/Contents/MacOS/HEARTLIGHT-Home &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8787/healthz | grep -q '"ok":true'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Packaged HEARTLIGHT Home did not become healthy" >&2
+          exit 1
       - name: Archive macOS app
         run: ditto -c -k --sequesterRsrc --keepParent dist/HEARTLIGHT-Home.app HEARTLIGHT-Home-macOS.zip
       - uses: actions/upload-artifact@v4
@@ -69,6 +104,22 @@ jobs:
         run: python -m pytest -q tests/test_home.py
       - name: Build Linux binary
         run: pyinstaller --noconfirm --clean --onefile --name HEARTLIGHT-Home packaging/heartlight_home_launcher.py
+      - name: Smoke-test packaged Linux app
+        env:
+          HEARTLIGHT_NO_BROWSER: "1"
+          HEARTLIGHT_HOME_PORT: "8787"
+        run: |
+          dist/HEARTLIGHT-Home &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8787/healthz | grep -q '"ok":true'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Packaged HEARTLIGHT Home did not become healthy" >&2
+          exit 1
       - name: Archive Linux binary
         run: tar -C dist -czf HEARTLIGHT-Home-Linux-x86_64.tar.gz HEARTLIGHT-Home
       - uses: actions/upload-artifact@v4
@@ -97,4 +148,4 @@ jobs:
           gh release create home-latest release-assets/* \
             --title "HEARTLIGHT Home — Latest" \
             --prerelease \
-            --notes "Family-friendly desktop build of HEARTLIGHT Home. Download the file for your operating system and open it; no Python or terminal is required. Windows and macOS binaries are currently unsigned community builds, so the operating system may show a security warning. HEARTLIGHT is a memorial archive/simulation toolkit and does not claim resurrection or identity transfer."
+            --notes "Family-friendly desktop build of HEARTLIGHT Home. Download the file for your operating system and open it; no Python or terminal is required. Each packaged binary was launched and passed a local health check before publication. Windows and macOS binaries are currently unsigned community builds, so the operating system may show a security warning. HEARTLIGHT is a memorial archive/simulation toolkit and does not claim resurrection or identity transfer."

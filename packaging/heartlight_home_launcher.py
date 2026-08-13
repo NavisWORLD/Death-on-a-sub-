@@ -1,4 +1,4 @@
-from heartlight.home import main
+from heartlight.home_app import main
 
 
 if __name__ == "__main__":

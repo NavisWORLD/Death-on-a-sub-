@@ -52,7 +52,7 @@ class Vault:
         ):
             path.mkdir(parents=True, exist_ok=True)
 
-    def require(self) -> "Vault":
+    def require(self) -> Vault:
         if not self.manifest.exists():
             raise FileNotFoundError(
                 f"{self.root} is not a HEARTLIGHT vault. Run `heartlight init {self.root}` first."

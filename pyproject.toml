@@ -42,7 +42,7 @@ dev = [
 
 [project.scripts]
 heartlight = "heartlight.cli:main"
-heartlight-home = "heartlight.home:main"
+heartlight-home = "heartlight.home_app:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

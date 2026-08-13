@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "heartlight-lantern"
-version = "0.1.0"
-description = "Consent-first memorial archive and heartbeat rhythm signature toolkit"
+version = "0.2.0"
+description = "Consent-first memorial archive, heartbeat rhythm toolkit, and family-friendly HEARTLIGHT Home app"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
@@ -23,6 +23,7 @@ azure = ["azure-storage-blob>=12.20"]
 ibm = ["ibm-cos-sdk>=2.13"]
 cloud = ["azure-storage-blob>=12.20", "ibm-cos-sdk>=2.13"]
 server = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.12"]
+home = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "python-multipart>=0.0.12"]
 enterprise = [
   "azure-storage-blob>=12.20",
   "ibm-cos-sdk>=2.13",
@@ -30,10 +31,18 @@ enterprise = [
   "uvicorn[standard]>=0.30",
   "python-multipart>=0.0.12",
 ]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "python-multipart>=0.0.12",
+  "httpx>=0.27",
+]
 
 [project.scripts]
 heartlight = "heartlight.cli:main"
+heartlight-home = "heartlight.home:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

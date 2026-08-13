@@ -142,10 +142,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete home-latest --cleanup-tag -y || true
           git tag -f home-latest "$GITHUB_SHA"
           git push origin refs/tags/home-latest --force
-          gh release create home-latest release-assets/* \
-            --title "HEARTLIGHT Home — Latest" \
-            --prerelease \
-            --notes "Family-friendly desktop build of HEARTLIGHT Home. Download the file for your operating system and open it; no Python or terminal is required. Each packaged binary was launched and passed a local health check before publication. Windows and macOS binaries are currently unsigned community builds, so the operating system may show a security warning. HEARTLIGHT is a memorial archive/simulation toolkit and does not claim resurrection or identity transfer."
+          if gh release view home-latest >/dev/null 2>&1; then
+            gh release upload home-latest release-assets/* --clobber
+            gh release edit home-latest \
+              --title "HEARTLIGHT Home — Latest" \
+              --prerelease \
+              --notes "Family-friendly desktop build of HEARTLIGHT Home. Download the file for your operating system and open it; no Python or terminal is required. Each packaged binary was launched and passed a local health check before publication. Windows and macOS binaries are currently unsigned community builds, so the operating system may show a security warning. HEARTLIGHT is a memorial archive/simulation toolkit and does not claim resurrection or identity transfer."
+          else
+            gh release create home-latest release-assets/* \
+              --target "$GITHUB_SHA" \
+              --title "HEARTLIGHT Home — Latest" \
+              --prerelease \
+              --notes "Family-friendly desktop build of HEARTLIGHT Home. Download the file for your operating system and open it; no Python or terminal is required. Each packaged binary was launched and passed a local health check before publication. Windows and macOS binaries are currently unsigned community builds, so the operating system may show a security warning. HEARTLIGHT is a memorial archive/simulation toolkit and does not claim resurrection or identity transfer."
+          fi

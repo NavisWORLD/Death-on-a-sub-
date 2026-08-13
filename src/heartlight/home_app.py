@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 import threading
@@ -178,9 +179,11 @@ def create_app() -> FastAPI:
 
 def main() -> int:
     _home_root()
-    port = _find_port()
+    requested_port = os.environ.get("HEARTLIGHT_HOME_PORT")
+    port = int(requested_port) if requested_port else _find_port()
     url = f"http://127.0.0.1:{port}/"
-    threading.Timer(0.9, lambda: webbrowser.open(url)).start()
+    if os.environ.get("HEARTLIGHT_NO_BROWSER") != "1":
+        threading.Timer(0.9, lambda: webbrowser.open(url)).start()
     uvicorn.run(create_app(), host="127.0.0.1", port=port, log_level="warning", access_log=False)
     return 0
 

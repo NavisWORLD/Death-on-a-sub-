@@ -4,6 +4,9 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
+pub mod synaptic;
+pub use synaptic::*;
+
 pub const HIP_VERSION: &str = "0.1";
 pub const DISCLOSURE: &str = "I am a memorial simulation generated from family-provided records and teaching. I am not the deceased person and I do not claim that their consciousness returned.";
 

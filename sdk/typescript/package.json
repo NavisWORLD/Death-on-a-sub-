@@ -1,14 +1,14 @@
 {
   "name": "@heartlight/hip",
-  "version": "0.1.0",
-  "description": "TypeScript types for the HEARTLIGHT Interop Protocol",
+  "version": "0.2.0",
+  "description": "TypeScript SDK for HEARTLIGHT HIP and Synaptic Kernel",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build"
+    "test": "npm run build && node test/synaptic.test.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

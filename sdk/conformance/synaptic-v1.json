@@ -1,0 +1,26 @@
+{
+  "kernel_version": "1.0",
+  "precision": "IEEE-754 binary64",
+  "tolerance": 1e-12,
+  "config": {
+    "learning_rate": 0.08,
+    "decay": 0.002,
+    "trace_decay": 0.9,
+    "min_weight": -1.0,
+    "max_weight": 1.0
+  },
+  "initial_state": {
+    "weight": 0.2,
+    "eligibility": 0.0
+  },
+  "steps": [
+    {"pre": 0.5, "post": 0.25, "reward": 1.0},
+    {"pre": 1.0, "post": -0.5, "reward": 0.4},
+    {"pre": 0.2, "post": 0.8, "reward": -0.25}
+  ],
+  "expected_states": [
+    {"weight": 0.2096, "eligibility": 0.125},
+    {"weight": 0.1967808, "eligibility": -0.3875},
+    {"weight": 0.2001622384, "eligibility": -0.18875}
+  ]
+}

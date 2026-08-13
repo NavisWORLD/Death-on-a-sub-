@@ -1,6 +1,8 @@
 export const HIP_VERSION = "0.1" as const;
 export const DISCLOSURE = "I am a memorial simulation generated from family-provided records and teaching. I am not the deceased person and I do not claim that their consciousness returned.";
 
+export * from "./synaptic.js";
+
 export type Provenance = {
   artifact_sha256?: string;
   producer: string;

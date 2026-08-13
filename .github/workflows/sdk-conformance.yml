@@ -1,0 +1,100 @@
+name: HEARTLIGHT SDK Conformance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/heartlight/synaptic.py"
+      - "tests/test_synaptic.py"
+      - "sdk/**"
+      - "docs/SYNAPTIC_KERNEL.md"
+      - "docs/SDK_MATRIX.md"
+      - ".github/workflows/sdk-conformance.yml"
+  pull_request:
+    paths:
+      - "src/heartlight/synaptic.py"
+      - "tests/test_synaptic.py"
+      - "sdk/**"
+      - "docs/SYNAPTIC_KERNEL.md"
+      - "docs/SDK_MATRIX.md"
+      - ".github/workflows/sdk-conformance.yml"
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest -q tests/test_synaptic.py
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path sdk/rust/Cargo.toml
+
+  c-and-cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: C11 conformance
+        run: gcc -std=c11 -Wall -Wextra -pedantic -Isdk/c/include sdk/c/src/heartlight_synaptic.c sdk/c/tests/synaptic_test.c -lm -o /tmp/heartlight-c && /tmp/heartlight-c
+      - name: C++20 conformance
+        run: g++ -std=c++20 -Wall -Wextra -pedantic -Isdk/cpp/include sdk/cpp/tests/synaptic_test.cpp -o /tmp/heartlight-cpp && /tmp/heartlight-cpp
+
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.23.x" }
+      - run: cd sdk/go && go test ./...
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: cd sdk/typescript && npm install && npm test
+
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - run: mvn -q -f sdk/java/pom.xml test
+
+  kotlin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.10.2" }
+      - run: gradle -p sdk/kotlin test --no-daemon
+
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "8.0.x" }
+      - run: dotnet test sdk/dotnet/Heartlight.Hip.Tests/Heartlight.Hip.Tests.csproj --configuration Release
+
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd sdk/swift && swift test

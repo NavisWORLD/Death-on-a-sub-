@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from heartlight.synaptic import SynapticConfig, SynapticInput, SynapticState, synaptic_step
+from heartlight import SynapticConfig, SynapticInput, SynapticState, synaptic_step
 
 
 def test_synaptic_v1_conformance_fixture() -> None:

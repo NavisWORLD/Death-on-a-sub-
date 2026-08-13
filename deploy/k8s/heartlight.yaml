@@ -13,7 +13,9 @@ kind: Deployment
 metadata:
   name: heartlight-api
 spec:
-  replicas: 2
+  # The reference API uses JSON/filesystem state, so keep this baseline single-writer.
+  # Move manifests/teaching to transactional services before horizontal scaling.
+  replicas: 1
   selector:
     matchLabels:
       app: heartlight-api
